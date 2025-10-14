@@ -1,0 +1,1 @@
+# implement scoring algo, assign diversity score to each group and eventually display it
