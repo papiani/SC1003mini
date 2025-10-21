@@ -1,11 +1,10 @@
 import csv
-
+import random
 # implement scoring algo, assign diversity score to each group and eventually display it
 heirarchy =[
-    'TutorialGroup' ,'School','Gender' ,'CGPA' # edit the order of this list to give priority of split
+    'School','Gender' ,'CGPA' # edit the order of this list to give priority of split
 ]
 getindex = {
-    'TutorialGroup' :0,
     'School' :2,
     'Gender' :4,
     'CGPA' :5
@@ -49,4 +48,30 @@ def diversityscore(groupls, heirarchy=heirarchy, getindex = getindex): # returns
                     if person[index] != otherperson[index]: # this will not work for cgpa, need to add cgpa functionality # TODO
                         totalscore +=points
     return totalscore
+
+def random_change(grpls):
+    # change must be within the same tutorial group
+    grpnum = random.randint(0,len(grpls)-1)
+    person = random.randint(0,4) # pick rndom person
+    otherperson = random.randint(0,4) # pick rndom person
+    
+    # make selection of options of people with the same tutorial grp and shuffle the list of options
+    options = []
+    index = -1
+    for grp in grpls:
+        index+=1
+        if grp[0][0] == grpls[grpnum][person][0]: #same tg
+            options.append((index,otherperson))
+    grp2,person2= random.choice(options) # picked person to swap with
+
+    # now do the swap
+    tempperson1 = grpls[grpnum].pop(person)
+    tempperson2 = grpls[grp2].pop(person2)
+    grpls[grpnum].append(tempperson2)
+    grpls[grp2].append(tempperson1)
+    
+    return grpls
+
+def initialise_groups(raw_data):
+    # YONG JIA HOMEWORK
 
