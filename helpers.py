@@ -73,5 +73,6 @@ def random_change(grpls):
     return grpls
 
 def initialise_groups(raw_data):
+    pass
     # YONG JIA HOMEWORK
 
