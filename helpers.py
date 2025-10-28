@@ -1,6 +1,7 @@
 import csv
 import random
 import copy
+import os
 # implement scoring algo, assign diversity score to each group and eventually display it
 heirarchy =[
     'School','Gender' ,'CGPA' # edit the order of this list to give priority of split
@@ -47,7 +48,9 @@ def diversityscore(groupori, heirarchy=heirarchy, getindex = getindex): # return
             for person in grp:
                 tempgrp.remove(person)
                 for otherperson in tempgrp:
-                    if person[index] != otherperson[index]: # this will not work for cgpa, need to add cgpa functionality # TODO
+                    if parameter == 'CGPA':
+                        totalscore += points*(abs(float(person[index]) - float(otherperson[index]))) #cgpa compatible functionality
+                    if person[index] != otherperson[index]:
                         totalscore +=points
     return totalscore
 
@@ -96,6 +99,21 @@ def initialise_groups(raw_data):
             grpls.append(newgrp)
     return grpls
 
-            
+def final_tabulation(grpls):
+    if os.path.exists('output.csv'):
+        os.remove('output.csv')
+    with open('output.csv', mode='w', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        counter = 0
+        for grp in grpls:
+            # Tutorial Group,Student ID,School,Name,Gender,CGPA
+            header = [f'GROUP {counter} - TG','Student ID','School','Name','Gender','CGPA']
+            writer.writerow(header)
+            for person in grp:
+                writer.writerow(person)
+            counter+=1
+        
+
+
 
 

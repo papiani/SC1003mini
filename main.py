@@ -22,7 +22,7 @@ initial = groupings.copy()
 initial_diversity_score = diversityscore(initial,heirarchy,indexes)
 
 epochcounter = 0
-while epochcounter<10000:
+while epochcounter<500:
     print(f"Epoch: {epochcounter}")
     epochcounter+=1
     epochvdiversity.append((epochcounter,initial_diversity_score))
@@ -33,9 +33,6 @@ while epochcounter<10000:
         print(f"{alternative_diversity_score} is greater than {initial_diversity_score}")
         initial = copy.deepcopy(alternative)
         initial_diversity_score = alternative_diversity_score
-print(epochvdiversity)
 time_linegraph(epochvdiversity)
+final_tabulation(initial)
 
-
-
-# additional comments
