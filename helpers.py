@@ -1,5 +1,6 @@
 import csv
 import random
+import copy
 # implement scoring algo, assign diversity score to each group and eventually display it
 heirarchy =[
     'School','Gender' ,'CGPA' # edit the order of this list to give priority of split
@@ -34,14 +35,15 @@ def segregate(data,index): # returns a dict where key is index_of_segreation, va
             sorted[entry[index]] = temp
     return sorted
 
-def diversityscore(groupls, heirarchy=heirarchy, getindex = getindex): # returns diversity score of groups
-    points = 0.005
+def diversityscore(groupori, heirarchy=heirarchy, getindex = getindex): # returns diversity score of groups
+    groupls = groupori.copy()
+    points = 0.5
     totalscore = 0
     for parameter in heirarchy:
-        points -=0.001
+        points -=0.1
         index = getindex[parameter]
         for grp in groupls:
-            tempgrp = grp
+            tempgrp = grp.copy()
             for person in grp:
                 tempgrp.remove(person)
                 for otherperson in tempgrp:
@@ -50,29 +52,50 @@ def diversityscore(groupls, heirarchy=heirarchy, getindex = getindex): # returns
     return totalscore
 
 def random_change(grpls):
-    # change must be within the same tutorial group
-    grpnum = random.randint(0,len(grpls)-1)
-    person = random.randint(0,4) # pick rndom person
-    otherperson = random.randint(0,4) # pick rndom person
-    
-    # make selection of options of people with the same tutorial grp and shuffle the list of options
-    options = []
-    index = -1
-    for grp in grpls:
-        index+=1
-        if grp[0][0] == grpls[grpnum][person][0]: #same tg
-            options.append((index,otherperson))
-    grp2,person2= random.choice(options) # picked person to swap with
+    grpc1 = copy.deepcopy(grpls)
+    grpnum = random.randint(0, len(grpc1) - 1)
+    group = grpc1[grpnum]
+    if not group:
+        return grpc1  # skip empty group
 
-    # now do the swap
-    tempperson1 = grpls[grpnum].pop(person)
-    tempperson2 = grpls[grp2].pop(person2)
-    grpls[grpnum].append(tempperson2)
-    grpls[grp2].append(tempperson1)
-    
-    return grpls
+    person_idx = random.randint(0, len(group) - 1)
+    person = group[person_idx]
+    tutorial_group = person[0]
+
+    # Find all candidates in other groups with the same tutorial group
+    options = []
+    for i, grp in enumerate(grpc1):
+        for j, candidate in enumerate(grp):
+            if i == grpnum and j == person_idx:
+                continue  # skip the same person
+            if candidate[0] == tutorial_group:
+                options.append((i, j))
+
+    if not options:
+        return grpc1  # no valid swap
+
+    grp2_idx, person2_idx = random.choice(options)
+
+    # Perform the swap
+    grpc1[grpnum][person_idx], grpc1[grp2_idx][person2_idx] = grpc1[grp2_idx][person2_idx], grpc1[grpnum][person_idx]
+
+    return grpc1
+
 
 def initialise_groups(raw_data):
-    pass
-    # YONG JIA HOMEWORK
+    # randomly generate grps of 5, list of lists
+    grpls = []
+    sorted = segregate(raw_data,0) # sorts into dicts of ppl within same tg
+    for tg,grp in sorted.items():
+        maxed = len(grp) # num of ppl in specific tg
+        grpsize = 5
+        i = 0
+        while i+grpsize<len(grp):
+            newgrp = grp[i:i+grpsize]
+            i = i+grpsize
+            grpls.append(newgrp)
+    return grpls
+
+            
+
 
