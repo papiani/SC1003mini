@@ -36,53 +36,55 @@ def segregate(data,index): # returns a dict where key is index_of_segreation, va
             sorted[entry[index]] = temp
     return sorted
 
-def diversityscore(groupori, heirarchy=heirarchy, getindex = getindex): # returns diversity score of groups
-    groupls = groupori.copy()
+def single_diversityscore(single_grp, heirarchy=['School','Gender','CGPA'], getindex={'School':2,'Gender':4,'CGPA':5}):
     points = 0.5
     totalscore = 0
     for parameter in heirarchy:
-        points -=0.1
+        points -= 0.1
         index = getindex[parameter]
-        for grp in groupls:
-            tempgrp = grp.copy()
-            for person in grp:
-                tempgrp.remove(person)
-                for otherperson in tempgrp:
-                    if parameter == 'CGPA':
-                        totalscore += points*(abs(float(person[index]) - float(otherperson[index]))) #cgpa compatible functionality
-                    if person[index] != otherperson[index]:
-                        totalscore +=points
+        for i, person in enumerate(single_grp):
+            for j in range(i + 1, len(single_grp)):  # Only compare with people after current
+                otherperson = single_grp[j]
+                if parameter == 'CGPA':
+                    totalscore += points * (abs(float(person[index]) - float(otherperson[index])))
+                if person[index] != otherperson[index]:
+                    totalscore += points
     return totalscore
 
-def random_change(grpls):
-    grpc1 = copy.deepcopy(grpls)
+def random_change(groups):
+    
+    grpc1 = copy.deepcopy(groups)
+    
+    # Pick a random group and person
     grpnum = random.randint(0, len(grpc1) - 1)
     group = grpc1[grpnum]
+    
     if not group:
-        return grpc1  # skip empty group
-
+        return None, None, None  # Skip empty group
+    
     person_idx = random.randint(0, len(group) - 1)
     person = group[person_idx]
-    tutorial_group = person[0]
-
+    tutorial_group = person[0]  # Tutorial group is in column 0
+    
     # Find all candidates in other groups with the same tutorial group
     options = []
     for i, grp in enumerate(grpc1):
         for j, candidate in enumerate(grp):
             if i == grpnum and j == person_idx:
-                continue  # skip the same person
+                continue  # Skip the same person
             if candidate[0] == tutorial_group:
                 options.append((i, j))
-
+    
     if not options:
-        return grpc1  # no valid swap
-
+        return None, None, None  # No valid swap
+    
+    # Pick a random candidate and perform the swap
     grp2_idx, person2_idx = random.choice(options)
-
+    
     # Perform the swap
     grpc1[grpnum][person_idx], grpc1[grp2_idx][person2_idx] = grpc1[grp2_idx][person2_idx], grpc1[grpnum][person_idx]
-
-    return grpc1
+    
+    return grpc1, grpnum, grp2_idx
 
 
 def initialise_groups(raw_data):
@@ -93,9 +95,9 @@ def initialise_groups(raw_data):
         maxed = len(grp) # num of ppl in specific tg
         grpsize = 5
         i = 0
-        while i+grpsize<len(grp):
-            newgrp = grp[i:i+grpsize]
-            i = i+grpsize
+        while i + grpsize < len(grp):
+            newgrp = grp[i:i + grpsize]
+            i = i + grpsize
             grpls.append(newgrp)
     return grpls
 
