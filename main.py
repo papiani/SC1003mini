@@ -41,6 +41,7 @@ def initialise_groups(raw_data):
             i = i + group_size
             groups_list.append(new_grp)
     return groups_list
+    
 # initialise data tools
 history = []
 # read csv
@@ -59,7 +60,7 @@ get_index = {
     "CGPA":5
 }
 
-
+# Calculate diversity score for each group
 def single_diversity_score(single_grp, hierarchy = hierarchy, get_index = get_index):
     points = 0.5
     total_score = 0
@@ -75,6 +76,7 @@ def single_diversity_score(single_grp, hierarchy = hierarchy, get_index = get_in
                     total_score += points
     return total_score
 
+# Choose two random groups to make a swap
 def random_change(groups):
     
     group_copy = copy.deepcopy(groups)
@@ -107,11 +109,12 @@ def random_change(groups):
     
     # Perform the swap
     group_copy[group_num][person_index], group_copy[group2_index][person2_index] = group_copy[group2_index][person2_index], group_copy[group_num][person_index]
-    
+
+    # Also return the two groups being swapped
     return group_copy, group_num, group2_index
 
 
-def swap_groups(new_groups, grp1_idx, grp2_idx, current_total_score, group_scores):
+def valid_swap(new_groups, grp1_idx, grp2_idx, current_total_score, group_scores):
     # Only recalculate the 2 changed groups
     new_score_grp1 = single_diversity_score(new_groups[grp1_idx], hierarchy, get_index)
     new_score_grp2 = single_diversity_score(new_groups[grp2_idx], hierarchy, get_index)
@@ -183,14 +186,15 @@ for epoch in range(1,10001):
     if new_groups is None:
         continue  # No valid swap found, try again
 
-    current_total_score, accepted = swap_groups(new_groups, grp1_idx, grp2_idx, current_total_score, group_scores)
+    current_total_score, accepted = valid_swap(new_groups, grp1_idx, grp2_idx, current_total_score, group_scores)
     if accepted:
         initial = new_groups
         print('-----------------------CHANGE--------------------')
-        print(f"Epoch {epoch}: Diversity Score = {current_total_score:.2f} (Accepted)")
+        print(f"Epoch {epoch}: New Diversity Score = {current_total_score:.2f}")
     # Record history for graph
     history.append((epoch, current_total_score))
 
 time_linegraph(history)
 final_tabulation(initial)
+
 
