@@ -186,8 +186,8 @@ for epoch in range(1,10001):
     current_total_score, accepted = swap_groups(new_groups, grp1_idx, grp2_idx, current_total_score, group_scores)
     if accepted:
         initial = new_groups
-
-    print(f"Epoch {epoch}: Diversity Score = {current_total_score:.2f}")
+        print('-----------------------CHANGE--------------------')
+        print(f"Epoch {epoch}: Diversity Score = {current_total_score:.2f} (Accepted)")
     # Record history for graph
     history.append((epoch, current_total_score))
 
