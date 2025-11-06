@@ -36,7 +36,7 @@ def initialise_groups(raw_data):
         maxed = len(grp) # num of ppl in specific tutorial group
         group_size = 5
         i = 0
-        while i + group_size < maxed:
+        while i + group_size <= maxed:
             new_grp = grp[i:i + group_size]
             i = i + group_size
             groups_list.append(new_grp)
@@ -196,5 +196,6 @@ for epoch in range(1,10001):
 
 time_linegraph(history)
 final_tabulation(initial)
+
 
 
