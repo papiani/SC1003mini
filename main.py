@@ -3,33 +3,33 @@ import random
 import copy
 import os
 import matplotlib.pyplot as plt
+
+# parameters
 group_size = 7
 epochs = 100
+# Diversity Score Epoch History
+history = []
+# Weightage hierarchy for diversity score calculation (Highest to lowest)
+hierarchy = ['School','CGPA','Gender']
 
-
-def load_raw_data(path): # returns a list of rows (list of lists) in the csv
-    # Tutorial Group,Student ID,School,Name,Gender,CGPA
+get_index = {
+    "Tutorial Group":0,
+    "Student ID":1,
+    "School":2,
+    "Name":3,
+    "Gender":4,
+    "CGPA":5
+}
+# returns a list of rows (list of lists) in the csv
+def load_raw_data(path): 
+    # formatted: TutorialGroup, StudentID, School, Name, Gender, CGPA
     rows = []
     with open(path, newline='', encoding='utf-8') as csvfile:
         reader = csv.reader(csvfile)
         for row in reader:
-            if True: # placeholder for conditions to clean data if required later
+            if True:
                 rows.append(row)
     return rows
-def final_tabulation(groups_list,name):
-    if os.path.exists(name):
-        os.remove(name)
-    with open(name, mode='w', newline='', encoding='utf-8') as file:
-        writer = csv.writer(file)
-        header = ['TG','Student ID','School','Name','Gender','CGPA','Allocated Group']
-        writer.writerow(header)
-        counter = 0
-        for grp in groups_list:
-            # Tutorial Group,Student ID,School,Name,Gender,CGPA
-            for person in grp:
-                person.append(f'Group {counter}')
-                writer.writerow(person)
-            counter += 1
 
 def segregate(data,index): # returns a dict where key is index_of_segregation, value is a list of entries belonging to that index
     uniques = []
@@ -72,28 +72,10 @@ def initialise_groups(raw_data, group_size):
 
         groups_list.extend(temp_holding)
         final_list = groups_list[1:] # skip header in randomised list
-    final_tabulation(final_list,'draft.csv')
     return final_list
 
 
-    
-# initialise data tools
-history = []
-# read csv
-raw_data = load_raw_data("records.csv") # in format TutorialGroup, StudentID, School, Name, Gender, CGPA
-# initialise lists of 5 randomly
-groupings = initialise_groups(raw_data,group_size)
-# increase diversity of groups thru random changes
-hierarchy = ['School','Gender','CGPA']
 
-get_index = {
-    "Tutorial Group":0,
-    "Student ID":1,
-    "School":2,
-    "Name":3,
-    "Gender":4,
-    "CGPA":5
-}
 
 # Calculate diversity score for each group
 def single_diversity_score(single_grp, hierarchy = hierarchy, get_index = get_index):
@@ -192,6 +174,25 @@ def time_linegraph(data):
     plt.grid(True)
     plt.tight_layout()
     plt.show()
+
+def final_tabulation(groups_list,name):
+    if os.path.exists(name):
+        os.remove(name)
+    with open(name, mode='w', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        header = ['TG','Student ID','School','Name','Gender','CGPA','Allocated Group']
+        writer.writerow(header)
+        counter = 0
+        for grp in groups_list:
+            for person in grp:
+                person.append(f'Group {counter}')
+                writer.writerow(person)
+            counter += 1
+
+# Main Program    
+raw_data = load_raw_data("records.csv") 
+
+groupings = initialise_groups(raw_data,group_size)
 
 initial = groupings.copy()
 group_scores = {}
