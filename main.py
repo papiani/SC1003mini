@@ -3,6 +3,9 @@ import random
 import copy
 import os
 import matplotlib.pyplot as plt
+group_size = 7
+epochs = 100
+
 
 def load_raw_data(path): # returns a list of rows (list of lists) in the csv
     # Tutorial Group,Student ID,School,Name,Gender,CGPA
@@ -13,6 +16,20 @@ def load_raw_data(path): # returns a list of rows (list of lists) in the csv
             if True: # placeholder for conditions to clean data if required later
                 rows.append(row)
     return rows
+def final_tabulation(groups_list,name):
+    if os.path.exists(name):
+        os.remove(name)
+    with open(name, mode='w', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        header = ['TG','Student ID','School','Name','Gender','CGPA','Allocated Group']
+        writer.writerow(header)
+        counter = 0
+        for grp in groups_list:
+            # Tutorial Group,Student ID,School,Name,Gender,CGPA
+            for person in grp:
+                person.append(f'Group {counter}')
+                writer.writerow(person)
+            counter += 1
 
 def segregate(data,index): # returns a dict where key is index_of_segregation, value is a list of entries belonging to that index
     uniques = []
@@ -28,26 +45,44 @@ def segregate(data,index): # returns a dict where key is index_of_segregation, v
             sorted[entry[index]] = temp
     return sorted
 
-def initialise_groups(raw_data):
-    # randomly generate grps of 5, list of lists
+def initialise_groups(raw_data, group_size):
     groups_list = []
-    sorted = segregate(raw_data,0) # sorts into dicts of ppl within same tutorial group
-    for tut_grp,grp in sorted.items():
-        maxed = len(grp) # num of ppl in specific tutorial group
-        group_size = 5
+    sorted = segregate(raw_data, 0)  # sorts into dicts of ppl within same tutorial group
+
+    for tut_grp, grp in sorted.items():
+        temp_holding = []
+        maxed = len(grp)
         i = 0
+
+        # Create full-sized groups
         while i + group_size <= maxed:
             new_grp = grp[i:i + group_size]
-            i = i + group_size
-            groups_list.append(new_grp)
-    return groups_list
+            temp_holding.append(new_grp)
+            i += group_size
+
+        # Handle leftovers
+        leftovers = grp[i:maxed]
+        for idx, person in enumerate(leftovers):
+            # Distribute leftovers round-robin into existing groups
+            target_idx = idx % len(temp_holding) if temp_holding else 0
+            if temp_holding:
+                temp_holding[target_idx].append(person)
+            else:
+                temp_holding.append([person])  # if no full groups were made
+
+        groups_list.extend(temp_holding)
+        final_list = groups_list[1:] # skip header in randomised list
+    final_tabulation(final_list,'draft.csv')
+    return final_list
+
+
     
 # initialise data tools
 history = []
 # read csv
 raw_data = load_raw_data("records.csv") # in format TutorialGroup, StudentID, School, Name, Gender, CGPA
 # initialise lists of 5 randomly
-groupings = initialise_groups(raw_data)
+groupings = initialise_groups(raw_data,group_size)
 # increase diversity of groups thru random changes
 hierarchy = ['School','Gender','CGPA']
 
@@ -137,19 +172,6 @@ def valid_swap(new_groups, grp1_idx, grp2_idx, current_total_score, group_scores
     return current_total_score, False     
         
 
-def final_tabulation(groups_list):
-    if os.path.exists('output.csv'):
-        os.remove('output.csv')
-    with open('output.csv', mode='w', newline='', encoding='utf-8') as file:
-        writer = csv.writer(file)
-        counter = 0
-        for grp in groups_list:
-            # Tutorial Group,Student ID,School,Name,Gender,CGPA
-            header = [f'GROUP {counter} - TG','Student ID','School','Name','Gender','CGPA']
-            writer.writerow(header)
-            for person in grp:
-                writer.writerow(person)
-            counter += 1
 
 def time_linegraph(data):
     x_values =[]
@@ -179,7 +201,7 @@ for i, grp in enumerate(initial):
 current_total_score = sum(group_scores.values())
 initial_score = current_total_score
 
-for epoch in range(1,10001):
+for epoch in range(1,epochs+1):
     # Try a swap
     new_groups, grp1_idx, grp2_idx = random_change(initial)
     
@@ -195,7 +217,7 @@ for epoch in range(1,10001):
     history.append((epoch, current_total_score))
 
 time_linegraph(history)
-final_tabulation(initial)
+final_tabulation(initial,'output.csv')
 
 
 
