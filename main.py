@@ -5,7 +5,7 @@ import os
 import matplotlib.pyplot as plt
 
 # parameters
-group_size = 7
+group_size = 5
 epochs = 100
 # Diversity Score Epoch History
 history = []
