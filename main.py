@@ -180,7 +180,7 @@ def final_tabulation(groups_list,name):
         os.remove(name)
     with open(name, mode='w', newline='', encoding='utf-8') as file:
         writer = csv.writer(file)
-        header = ['TG','Student ID','School','Name','Gender','CGPA','Allocated Group']
+        header = ['TG','Student ID','School','Name','Gender','CGPA','Team Assigned']
         writer.writerow(header)
         counter = 0
         for grp in groups_list:
@@ -219,6 +219,7 @@ for epoch in range(1,epochs+1):
 
 time_linegraph(history)
 final_tabulation(initial,'output.csv')
+
 
 
 
