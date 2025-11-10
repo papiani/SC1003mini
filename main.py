@@ -63,7 +63,7 @@ def initialise_groups(raw_data, group_size):
         # Handle leftovers
         leftovers = grp[i:maxed]
         for idx, person in enumerate(leftovers):
-            # Distribute leftovers round-robin into existing groups
+            # Distribute leftovers into existing groups
             target_idx = idx % len(temp_holding) if temp_holding else 0
             if temp_holding:
                 temp_holding[target_idx].append(person)
@@ -72,7 +72,6 @@ def initialise_groups(raw_data, group_size):
 
         groups_list.extend(temp_holding)
         final_list = groups_list[1:] # skip header in randomised list
-    final_tabulation(final_list,'draft.csv')
     return final_list
 
 
@@ -84,7 +83,7 @@ raw_data = load_raw_data("records.csv") # in format TutorialGroup, StudentID, Sc
 # initialise lists of 5 randomly
 groupings = initialise_groups(raw_data,group_size)
 # increase diversity of groups thru random changes
-hierarchy = ['School','Gender','CGPA']
+hierarchy = ['School','CGPA','Gender']
 
 get_index = {
     "Tutorial Group":0,
